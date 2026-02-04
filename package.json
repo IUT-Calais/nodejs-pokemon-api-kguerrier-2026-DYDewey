@@ -4,14 +4,14 @@
   "description": "TESTNous allons tâcher de créer une API permettant d'effectuer des opérations CRUD sur les pokémons. Ce projet sera réalisé avec Express pour la gestion des routes et avec une base de donnée NoSQL.",
   "main": "build/index.js",
   "scripts": {
-    "dev": "nodemon --exec ts-node ./src/index.ts",
+    "dev": "nodemon --exec tsx ./src/index.ts",
     "start": "node ./build/index.js",
     "type-check": "tsc --noEmit",
     "build": "tsc",
     "db:reset": "prisma migrate reset --force",
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
-    "db:seed": "prisma seed",
+    "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
     "test": "jest --runInBand",
     "test:coverage": "jest --coverage --runInBand"
@@ -21,7 +21,7 @@
     "url": "git+https://github.com/vfourny/nodejs-pokedex-api.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Valentin Verstaevel",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/vfourny/nodejs-pokedex-api/issues"
@@ -34,6 +34,7 @@
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "swagger-ui-express": "^5.0.1",
+    "tsx": "^4.21.0",
     "yamljs": "^0.3.0"
   },
   "devDependencies": {
@@ -57,6 +58,6 @@
     "node": ">=22 <23"
   },
   "prisma": {
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts"
   }
 }
