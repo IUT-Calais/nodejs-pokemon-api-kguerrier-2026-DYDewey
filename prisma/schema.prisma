@@ -20,7 +20,7 @@ model PokemonCard {
   typeId     Int
   type       Type   @relation(fields: [typeId], references: [id])
   lifePoints Int
-  size       Float
+  size       Float 
   weight     Float
   imageUrl   String
 }
