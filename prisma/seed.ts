@@ -30,57 +30,41 @@ async function main() {
     ],
   });
 
-  const fireType = await prisma.type.findFirst({ where: { name: 'Fire' } });
-  const grassType = await prisma.type.findFirst({ where: { name: 'Grass' } });
-  const waterType = await prisma.type.findFirst({ where: { name: 'Water' } });
 
-
-  if (!fireType || !grassType || !waterType) {
-    throw new Error('Type pas trouvé');
-  }
-
-  await prisma.pokemonCard.createMany({
-    data: [
-      {
-        name: 'Bulbizarre',
-        pokedexId: 1,
-        typeId: grassType.id,
-        lifePoints: 45,
-        size: 0.7,
-        weight: 6.9,
-        imageUrl:
-          'https://assets.pokemon.com/assets/cms2/img/pokedex/full/001.png',
-      },
-      {
-        name: 'Salamèche',
-        pokedexId: 4,
-        typeId: fireType.id,
-        lifePoints: 39,
-        size: 0.6,
-        weight: 8.5,
-        imageUrl:
-          'https://assets.pokemon.com/assets/cms2/img/pokedex/full/004.png',
-      },
-      {
-        name: 'Carapuce',
-        pokedexId: 7,
-        typeId: waterType.id,
-        lifePoints: 44,
-        size: 0.5,
-        weight: 9.0,
-        imageUrl:
-          'https://assets.pokemon.com/assets/cms2/img/pokedex/full/007.png',
-      },
-    ],
-  });
-
-  await prisma.user.create({
-    data: {
-      email: 'admin@gmail.com',
-      password: 'admin',
+await prisma.pokemonCard.createMany({
+  data: [
+    {
+      name: 'Bulbizarre',
+      pokedexId: 1,
+      typeId: 4, 
+      lifePoints: 45,
+      size: 0.7,
+      weight: 6.9,
+      imageUrl:
+        'https://assets.pokemon.com/assets/cms2/img/pokedex/full/001.png',
     },
-  });
-}
+    {
+      name: 'Salamèche',
+      pokedexId: 4,
+      typeId: 2,
+      lifePoints: 39,
+      size: 0.6,
+      weight: 8.5,
+      imageUrl:
+        'https://assets.pokemon.com/assets/cms2/img/pokedex/full/004.png',
+    },
+    {
+      name: 'Carapuce',
+      pokedexId: 7,
+      typeId: 3,
+      lifePoints: 44,
+      size: 0.5,
+      weight: 9.0,
+      imageUrl:
+        'https://assets.pokemon.com/assets/cms2/img/pokedex/full/007.png',
+    },
+  ],
+});
 
 main()
   .catch((e) => {
