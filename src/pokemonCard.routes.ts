@@ -110,6 +110,72 @@ router.patch(
   }
 );
 
+// POST /pokemon-cards : create a new pokemon card (protected)
+router.post(
+  '/pokemon-cards',
+  verifierToken,
+  async (req: Request, res: Response) => {
+    const { name, pokedexId, typeId, lifePoints, size, weight, imageUrl } =
+      req.body;
+
+    // Required fields checks
+    if (!name) {
+      return res.status(400).json({ error: 'name is required' });
+    }
+    if (pokedexId == null) {
+      return res.status(400).json({ error: 'pokedexId is required' });
+    }
+    if (typeId == null) {
+      return res.status(400).json({ error: 'typeId is required' });
+    }
+    if (lifePoints == null) {
+      return res.status(400).json({ error: 'lifePoints is required' });
+    }
+
+    try {
+      // Check if type exists
+      const type = await prisma.type.findUnique({
+        where: { id: Number(typeId) },
+      });
+      if (!type) {
+        return res.status(400).json({ error: 'typeId does not exist' });
+      }
+
+      // Check duplicate name
+      const sameName = await prisma.pokemonCard.findUnique({
+        where: { name },
+      });
+      if (sameName) {
+        return res.status(400).json({ error: 'name already exists' });
+      }
+
+      // Check duplicate pokedexId
+      const samePokedexId = await prisma.pokemonCard.findUnique({
+        where: { pokedexId: Number(pokedexId) },
+      });
+      if (samePokedexId) {
+        return res.status(400).json({ error: 'pokedexId already exists' });
+      }
+
+      const created = await prisma.pokemonCard.create({
+        data: {
+          name,
+          pokedexId: Number(pokedexId),
+          typeId: Number(typeId),
+          lifePoints: Number(lifePoints),
+          size: size != null ? Number(size) : null,
+          weight: weight != null ? Number(weight) : null,
+          imageUrl: imageUrl ?? null,
+        },
+      });
+
+      return res.status(201).json(created);
+    } catch (error) {
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+);
+
 
 
 export default router;

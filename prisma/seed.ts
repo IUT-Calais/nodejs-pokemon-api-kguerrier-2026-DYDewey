@@ -7,6 +7,10 @@ async function main() {
   await prisma.user.deleteMany();
   await prisma.type.deleteMany();
 
+    await prisma.$executeRawUnsafe(
+    "DELETE FROM sqlite_sequence WHERE name IN ('PokemonCard', 'Type', 'User')"
+  );
+
   await prisma.type.createMany({
     data: [
       { name: 'Normal' },
