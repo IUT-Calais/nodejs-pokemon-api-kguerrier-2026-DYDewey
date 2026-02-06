@@ -243,12 +243,6 @@ const getTypeId = async (name: string) => {
         'https://assets.pokemon.com/assets/cms2/img/pokedex/full/175.png',
     },
   });
-  await prisma.user.create({
-    data: {
-      email: 'admin@gmail.com',
-      password: 'admin',
-    },
-  });
 }
 
 main()
