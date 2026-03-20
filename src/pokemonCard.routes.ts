@@ -4,7 +4,6 @@ import { verifierToken } from './middleware';
 
 const router = Router();
 
-
 router.get('/pokemon-cards', async (req: Request, res: Response) => {
   try {
     const pokemonCards = await prisma.pokemonCard.findMany({
@@ -110,7 +109,6 @@ router.patch(
   }
 );
 
-// POST /pokemon-cards : create a new pokemon card (protected)
 router.post(
   '/pokemon-cards',
   verifierToken,
@@ -118,7 +116,6 @@ router.post(
     const { name, pokedexId, typeId, lifePoints, size, weight, imageUrl } =
       req.body;
 
-    // Required fields checks
     if (!name) {
       return res.status(400).json({ error: 'name is required' });
     }
@@ -133,7 +130,6 @@ router.post(
     }
 
     try {
-      // Check if type exists
       const type = await prisma.type.findUnique({
         where: { id: Number(typeId) },
       });
@@ -141,7 +137,6 @@ router.post(
         return res.status(400).json({ error: 'typeId does not exist' });
       }
 
-      // Check duplicate name
       const sameName = await prisma.pokemonCard.findUnique({
         where: { name },
       });
@@ -149,7 +144,6 @@ router.post(
         return res.status(400).json({ error: 'name already exists' });
       }
 
-      // Check duplicate pokedexId
       const samePokedexId = await prisma.pokemonCard.findUnique({
         where: { pokedexId: Number(pokedexId) },
       });
@@ -170,6 +164,32 @@ router.post(
       });
 
       return res.status(201).json(created);
+    } catch (error) {
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+);
+
+router.delete(
+  '/pokemon-cards/:pokemonCardId',
+  verifierToken,
+  async (req: Request, res: Response) => {
+    const id = Number.parseInt(req.params.pokemonCardId, 10);
+
+    if (Number.isNaN(id)) {
+      return res.status(400).json({ error: 'Invalid id' });
+    }
+
+    try {
+      const card = await prisma.pokemonCard.findUnique({ where: { id } });
+
+      if (!card) {
+        return res.status(404).json({ error: 'PokemonCard not found' });
+      }
+
+      await prisma.pokemonCard.delete({ where: { id } });
+
+      return res.status(200).json({ message: 'PokemonCard supprimée avec succès' });
     } catch (error) {
       return res.status(500).json({ error: 'Internal server error' });
     }

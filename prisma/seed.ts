@@ -249,6 +249,7 @@ const getTypeId = async (name: string) => {
   });
 }
 
+
 main()
   .catch((e) => {
     console.error(e);
