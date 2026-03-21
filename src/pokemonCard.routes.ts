@@ -17,185 +17,160 @@ router.get('/pokemon-cards', async (req: Request, res: Response) => {
 
 router.get('/pokemon-cards/:pokemonCardId', async (req: Request, res: Response) => {
   const id = Number.parseInt(req.params.pokemonCardId, 10);
-
   if (Number.isNaN(id)) {
-    return res.status(400).json({ error: 'Invalid id' });
+    res.status(400).json({ error: 'Invalid id' });
+    return;
   }
-
   try {
     const pokemonCard = await prisma.pokemonCard.findUnique({
       where: { id },
       include: { type: true },
     });
-
     if (!pokemonCard) {
-      return res.status(404).json({ error: 'PokemonCard not found' });
+      res.status(404).json({ error: 'PokemonCard not found' });
+      return;
     }
-
     res.status(200).json(pokemonCard);
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// PATCH /pokemon-cards/:pokemonCardId : update an existing card (protected)
-router.patch(
-  '/pokemon-cards/:pokemonCardId',
-  verifierToken,
-  async (req: Request, res: Response) => {
+router.patch('/pokemon-cards/:pokemonCardId',verifierToken,async (req: Request, res: Response) => {
     const id = Number.parseInt(req.params.pokemonCardId, 10);
-
     if (Number.isNaN(id)) {
-      return res.status(400).json({ error: 'Invalid id' });
+      res.status(400).json({ error: 'Invalid id' });
+      return;
     }
-
-    const { name, pokedexId, typeId, lifePoints, size, weight, imageUrl } =
-      req.body;
-
+    const { name, pokedexId, typeId, lifePoints, size, weight, imageUrl } = req.body;
     try {
       const card = await prisma.pokemonCard.findUnique({ where: { id } });
       if (!card) {
-        return res.status(404).json({ error: 'PokemonCard not found' });
+        res.status(404).json({ error: 'PokemonCard not found' });
+        return;
       }
-
       if (typeId != null) {
         const type = await prisma.type.findUnique({
           where: { id: Number(typeId) },
         });
         if (!type) {
-          return res.status(400).json({ error: 'typeId does not exist' });
+          res.status(400).json({ error: 'typeId does not exist' });
+          return;
         }
       }
-
       if (name) {
         const otherByName = await prisma.pokemonCard.findUnique({
           where: { name },
         });
         if (otherByName && otherByName.id !== id) {
-          return res.status(400).json({ error: 'name already exists' });
+          res.status(400).json({ error: 'name already exists' });
+          return;
         }
       }
-
       if (pokedexId != null) {
         const otherByPokedex = await prisma.pokemonCard.findUnique({
           where: { pokedexId: Number(pokedexId) },
         });
         if (otherByPokedex && otherByPokedex.id !== id) {
-          return res
-            .status(400)
-            .json({ error: 'pokedexId already exists' });
+          res.status(400).json({ error: 'pokedexId already exists' });
+          return;
         }
       }
-
       const updated = await prisma.pokemonCard.update({
         where: { id },
         data: {
           name: name ?? card.name,
-          pokedexId:
-            pokedexId != null ? Number(pokedexId) : card.pokedexId,
+          pokedexId: pokedexId != null ? Number(pokedexId) : card.pokedexId,
           typeId: typeId != null ? Number(typeId) : card.typeId,
-          lifePoints:
-            lifePoints != null ? Number(lifePoints) : card.lifePoints,
-          size: size != null ? Number(size) : card.size,
-          weight: weight != null ? Number(weight) : card.weight,
+          lifePoints: lifePoints != null ? Number(lifePoints) : card.lifePoints,
+          size: Number(size ?? 0),
+          weight: Number(weight ?? 0),
           imageUrl: imageUrl ?? card.imageUrl,
         },
       });
-
-      return res.status(200).json(updated);
+      res.status(200).json(updated);
     } catch (error) {
-      return res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: 'Internal server error' });
     }
   }
 );
 
-router.post(
-  '/pokemon-cards',
-  verifierToken,
-  async (req: Request, res: Response) => {
-    const { name, pokedexId, typeId, lifePoints, size, weight, imageUrl } =
-      req.body;
-
+router.post('/pokemon-cards',verifierToken,async (req: Request, res: Response) => {
+    const { name, pokedexId, typeId, lifePoints, size, weight, imageUrl } = req.body;
     if (!name) {
-      return res.status(400).json({ error: 'name is required' });
+      res.status(400).json({ error: 'name is required' });
+      return;
     }
     if (pokedexId == null) {
-      return res.status(400).json({ error: 'pokedexId is required' });
+      res.status(400).json({ error: 'pokedexId is required' });
+      return;
     }
     if (typeId == null) {
-      return res.status(400).json({ error: 'typeId is required' });
+      res.status(400).json({ error: 'typeId is required' });
+      return;
     }
     if (lifePoints == null) {
-      return res.status(400).json({ error: 'lifePoints is required' });
+      res.status(400).json({ error: 'lifePoints is required' });
+      return;
     }
-
     try {
       const type = await prisma.type.findUnique({
         where: { id: Number(typeId) },
       });
       if (!type) {
-        return res.status(400).json({ error: 'typeId does not exist' });
+        res.status(400).json({ error: 'typeId does not exist' });
+        return;
       }
-
       const sameName = await prisma.pokemonCard.findUnique({
         where: { name },
       });
       if (sameName) {
-        return res.status(400).json({ error: 'name already exists' });
+        res.status(400).json({ error: 'name already exists' });
+        return;
       }
-
       const samePokedexId = await prisma.pokemonCard.findUnique({
         where: { pokedexId: Number(pokedexId) },
       });
       if (samePokedexId) {
-        return res.status(400).json({ error: 'pokedexId already exists' });
+        res.status(400).json({ error: 'pokedexId already exists' });
+        return;
       }
-
       const created = await prisma.pokemonCard.create({
         data: {
           name,
           pokedexId: Number(pokedexId),
           typeId: Number(typeId),
           lifePoints: Number(lifePoints),
-          size: size != null ? Number(size) : null,
-          weight: weight != null ? Number(weight) : null,
+          size: Number(size ?? 0),
+          weight: Number(weight ?? 0),
           imageUrl: imageUrl ?? null,
         },
       });
-
-      return res.status(201).json(created);
+      res.status(201).json(created);
     } catch (error) {
-      return res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: 'Internal server error' });
     }
   }
 );
 
-router.delete(
-  '/pokemon-cards/:pokemonCardId',
-  verifierToken,
-  async (req: Request, res: Response) => {
+router.delete('/pokemon-cards/:pokemonCardId',verifierToken,async (req: Request, res: Response) => {
     const id = Number.parseInt(req.params.pokemonCardId, 10);
-
     if (Number.isNaN(id)) {
-      return res.status(400).json({ error: 'Invalid id' });
+      res.status(400).json({ error: 'Invalid id' });
+      return;
     }
-
     try {
       const card = await prisma.pokemonCard.findUnique({ where: { id } });
-
       if (!card) {
-        return res.status(404).json({ error: 'PokemonCard not found' });
+        res.status(404).json({ error: 'PokemonCard not found' });
+        return;
       }
-
       await prisma.pokemonCard.delete({ where: { id } });
-
-      return res.status(200).json({ message: 'PokemonCard supprimée avec succès' });
+      res.status(204).send();
     } catch (error) {
-      return res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: 'Internal server error' });
     }
   }
 );
-
-
 
 export default router;

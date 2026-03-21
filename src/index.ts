@@ -10,10 +10,15 @@ app.use(express.json());
 app.use(pokemonCardRouter);
 app.use(userRouter);
 
-export const server = app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+export let server: any;
+if (process.env.NODE_ENV !== 'test') {
+  server = app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+  });
+}
 
 export function stopServer() {
+  if (server) {
   server.close();
+  }
 }
